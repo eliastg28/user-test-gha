@@ -38,3 +38,12 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getUsers = async (req, res) => {
+    try {
+        const [rows] = await pool.execute('SELECT HEX(id) AS id, name, email, roles, created_at, updated_at FROM users');
+        res.status(200).json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

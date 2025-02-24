@@ -13,5 +13,5 @@ COPY . .
 # Etapa 3: Imagen final para ejecución
 FROM node:22.14.0-alpine3.21 AS runner
 WORKDIR /app
-COPY --from=builder /app /app
+COPY --from=builder /app/src /app/src
 CMD ["node", "src/app.js"]

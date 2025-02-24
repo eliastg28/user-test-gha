@@ -1,0 +1,34 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Docker Login
+      if: success()  # 🚀 Solo sigue si las pruebas pasaron
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+    - name: Build and Push Docker Image
+      if: success()
+      run: |
+        docker build -t tgelias/gha-user-api:latest .
+        docker push tgelias/gha-user-api:latest

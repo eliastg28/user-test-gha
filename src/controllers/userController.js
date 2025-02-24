@@ -9,7 +9,7 @@ exports.createUser = async (req, res) => {
             'INSERT INTO users (id, name, email, password, roles) VALUES (UNHEX(?), ?, ?, ?, ?)',
             [id.replace(/-/g, ''), name, email, password, roles]
         );
-        res.status(201).json({ message: 'Usuario creado', userId: id });
+        res.status(201).json({ message: 'User created', userId: id });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -21,7 +21,7 @@ jobs:
       run: npm test
 
     - name: Docker Login
-      if: success()  # 🚀 Solo sigue si las pruebas pasaron
+      if: success()
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

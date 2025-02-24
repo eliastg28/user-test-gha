@@ -13,7 +13,19 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
+    # Generar versión basada en los commits
+    - name: Git Semantic Version
+      uses: PaulHatch/semantic-version@v4.0.3
+      with:
+        major_pattern: "major:"
+        minor_pattern: "feat:"
+        format: "${major}.${minor}.${patch}-prerelease${increment}"
+      id: version
+
+    # Configurar variables de entorno desde secrets
     - name: Configurar variables de entorno
       run: |
         echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
@@ -43,8 +55,13 @@ jobs:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
+    # Construcción y push de la imagen con versión
     - name: Build and Push Docker Image
       if: success()
+      env:
+        NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
+        docker build -t tgelias/gha-user-api:$NEW_VERSION .
         docker build -t tgelias/gha-user-api:latest .
+        docker push tgelias/gha-user-api:$NEW_VERSION
         docker push tgelias/gha-user-api:latest

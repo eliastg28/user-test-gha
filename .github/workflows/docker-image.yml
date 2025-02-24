@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,43 +7,28 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build:
-
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    
-    - name: Git Semantic Version
-      uses: PaulHatch/semantic-version@v4.0.3
-      with:
-        major_pattern: "major:"
-        minor_pattern: "feat:"
-        format: "${major}.${minor}.${patch}-prerelease${increment}"
-      id: version
-    
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
+
     - name: Docker Login
+      if: success()  # 🚀 Solo sigue si las pruebas pasaron
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        
+      run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+    - name: Build and Push Docker Image
+      if: success()
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-        
-    - name: Build Docker Image
-      env:
-        NEW_VERSION: ${{ steps.version.outputs.version }}
-      run: |
-        docker build -t tgelias/gha-user-api:$NEW_VERSION .
         docker build -t tgelias/gha-user-api:latest .
-        
-    - name: Push Docker Image
-      env:
-        NEW_VERSION: ${{ steps.version.outputs.version }}
-      run: |
-        docker push tgelias/gha-user-api:$NEW_VERSION
         docker push tgelias/gha-user-api:latest

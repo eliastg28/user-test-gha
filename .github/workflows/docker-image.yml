@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: 🚀 Clonar el código
       uses: actions/checkout@v3
 
-    - name: Configurar variables de entorno
+    - name: 🛠 Configurar variables de entorno
       run: |
         echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
         echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
@@ -23,10 +23,37 @@ jobs:
         echo "DB_PORT=${{ secrets.DB_PORT }}" >> $GITHUB_ENV
         echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
 
-    - name: Instalar dependencias
+    - name: 🔍 Mostrar valores de las variables de entorno
+      run: |
+        echo "DB_HOST=$DB_HOST"
+        echo "DB_USER=$DB_USER"
+        echo "DB_NAME=$DB_NAME"
+        echo "DB_PORT=$DB_PORT"
+        echo "PORT=$PORT"
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        PORT: ${{ secrets.PORT }}
+
+    - name: 🔌 Probar conexión con MySQL
+      run: |
+        sudo apt-get install -y mysql-client
+        echo "Conectando a MySQL..."
+        mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASSWORD" -e "SHOW DATABASES;"
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+
+    - name: 📦 Instalar dependencias
       run: npm install
 
-    - name: Ejecutar pruebas
+    - name: 🧪 Ejecutar pruebas con Jest
+      run: npm test
       env:
         DB_HOST: ${{ secrets.DB_HOST }}
         DB_USER: ${{ secrets.DB_USER }}
@@ -34,16 +61,15 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PORT: ${{ secrets.DB_PORT }}
         PORT: ${{ secrets.PORT }}
-      run: npm test
 
-    - name: Docker Login
+    - name: 🔑 Docker Login
       if: success()
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
 
-    - name: Build and Push Docker Image
+    - name: 🏗 Build y Push de la imagen Docker
       if: success()
       run: |
         docker build -t tgelias/gha-user-api:latest .

@@ -14,18 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Listar archivos para depuración
-      run: ls -R
-
-    - name: Verificar si apptest.js existe
-      run: |
-        if [ -f src/apptest.js ]; then
-          echo "✅ apptest.js encontrado"
-        else
-          echo "❌ apptest.js NO encontrado"
-          exit 1
-        fi
-
     - name: Install dependencies
       run: npm install
 

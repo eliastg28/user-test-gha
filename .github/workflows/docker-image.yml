@@ -25,6 +25,18 @@ jobs:
         format: "${major}.${minor}.${patch}-prerelease${increment}"
       id: version
 
+    - name: Verificar variables Docker
+      run: |
+        echo "DOCKER_USER: $DOCKER_USER"
+        echo "DOCKER_PASSWORD: [SECRETO OCULTO]"
+        echo "NEW_VERSION: ${{ steps.version.outputs.version }}"
+        echo "MYSQL_URL: $MYSQL_URL"
+        echo "MYSQL_USER: $MYSQL_USER"
+        echo "MYSQL_PASSWORD: [SECRETO OCULTO]"
+        echo "JWT_SECRET: [SECRETO OCULTO]"
+        echo "PORT: $PORT"
+
+
     # Configurar variables de entorno desde secrets
     - name: Configurar variables de entorno
       run: |
